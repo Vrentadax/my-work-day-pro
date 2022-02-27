@@ -2,22 +2,41 @@
 // save button saves
 // saved events persist in localstorage
 
-var tasks = "";
+var tasks = [];
 
 // saves tasks to localStorage
-var saveTasks = function () {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-};
+$('.saveBtn').on('click', function (event) {
+    event.preventDefault();
+
+    tasks = [];
+
+    $('.time-block').each(function () {
+        tasks.push({
+            index: $(this).attr('id'),
+            textP: $(this).find('textarea').val()
+        });
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    });
+});
 
 // load tasks
 var loadTasks = function () {
     tasks = JSON.parse(localStorage.getItem("tasks"));
 
-    if(!tasks) {
-        tasks = ""; 
+    if (!tasks) {
+        tasks = {
+            index: [],
+            textP: []
+        };
     }
 
-    // need to cycle through tasks and append to correct time slot (pass to createtask function)
+    for (i = 0; i < info.length; i++) {
+        $('.time-block').each(function () {
+            if (tasks[i].index === $(this).attr('id')) {
+                $(this).find("description").val(tasks[i].textP);
+            };
+        });
+    };
 };
 
 // displays today's date in header
@@ -31,16 +50,17 @@ var displayToday = function () {
 var updateBlocks = function () {
     var time = moment().get("h");
     console.log(time);
+
     for (var i = 9; i <= 17; i++) {
-        $(".container").find("t-" + i)
+        $(".container").find(i)
         if (time > i) {
-            $(".t-" + i).addClass("past")
+            $("#" + i).removeClass('past present future').addClass("past")
         }
         else if (time === i) {
-            $(".t-" + i).addClass("present")
+            $("#" + i).removeClass('past present future').addClass("present")
         }
         else if (time < i) {
-            $(".t-" + i).addClass("future")
+            $("#" + i).removeClass('past present future').addClass("future")
         }
     }
 };
@@ -48,19 +68,19 @@ var updateBlocks = function () {
 // procedurally creates block items
 var createBlocks = function () {
     for (var i = 9; i <= 17; i++) {
-        var timeBlock = $("<div>").addClass("row time-block h-" + i);
+        var timeBlock = $("<div>").addClass("row time-block");
         var time = $("<div>").addClass("hour col-1 d-inline pt-3").text(moment().hour(i).format("h A"));
-        var text = $("<div>").addClass("description col-10 d-inline pt-3 t-" + i);
-        var save = $("<div>").addClass("saveBtn col-1 d-inline pt-3 s-" + i).text("Save");
+        var text = $("<textarea>").attr("id", i).addClass("description textarea col-10 d-inline pt-3");
+        var save = $("<button>").addClass("saveBtn col-1 d-inline pt-3").text("Save");
         $(".container").append(timeBlock.append(time).append(text).append(save));
 
     }
     updateBlocks();
 };
 
-var createTask = function() {
+var createTask = function () {
     var taskP = $("<p>")
-    .text(taskText);
+        .text(taskText);
 
     // need to create task (if any) and assign to correct block
 };
@@ -83,7 +103,7 @@ $(".description").on("click", "div", function () {
     textInput.trigger("focus");
 });
 
-// sets interval to check every 30 min for update to class
+// sets interval to check every 10 min for update to class
 setInterval(function () {
     updateBlocks()
-}, ((1000 * 60) * 30));
+}, ((1000 * 60) * 10));
