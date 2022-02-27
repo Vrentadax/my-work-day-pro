@@ -76,6 +76,5 @@ setInterval(function () {
 }, ((1000 * 60) * 10));
 
 displayToday();
-// createBlocks();
 updateBlocks();
 loadtasks();
